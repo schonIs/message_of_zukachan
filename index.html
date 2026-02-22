@@ -11,6 +11,7 @@
             font-family: 'Shippori Mincho', serif;
             background-color: #fafafa;
             color: #333333;
+            overflow-x: hidden; /* 横スクロールを防ぐ */
         }
         /* ふわっと表示させるアニメーション */
         .fade-in {
@@ -24,15 +25,46 @@
                 transform: translateY(0);
             }
         }
-        /* 段落ごとのアニメーション遅延 */
         .delay-1 { animation-delay: 0.3s; }
         .delay-2 { animation-delay: 0.6s; }
         .delay-3 { animation-delay: 0.9s; }
+
+        /* 桜の花びら用CSS */
+        .sakura-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none; /* クリックの邪魔をしない */
+            z-index: 50;
+        }
+        .sakura {
+            position: absolute;
+            background-color: #ffb7c5; /* 優しい桜色 */
+            border-radius: 150% 0 150% 0; /* 花びらの形 */
+            opacity: 0.8;
+            animation: fall linear forwards, sway ease-in-out infinite alternate;
+        }
+        /* 落ちるアニメーション */
+        @keyframes fall {
+            0% { top: -10%; opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { top: 110%; opacity: 0; }
+        }
+        /* ゆらゆら揺れるアニメーション */
+        @keyframes sway {
+            0% { transform: translateX(0px) rotate(0deg); }
+            100% { transform: translateX(30px) rotate(45deg); }
+        }
     </style>
 </head>
-<body class="antialiased py-12 px-6 md:py-24 selection:bg-gray-300">
+<body class="antialiased py-12 px-6 md:py-24 selection:bg-gray-300 relative">
 
-    <div class="max-w-2xl mx-auto bg-white p-8 md:p-16 shadow-sm border border-gray-100 rounded-sm">
+    <div id="sakura-container" class="sakura-container"></div>
+
+    <div class="max-w-2xl mx-auto bg-white p-8 md:p-16 shadow-sm border border-gray-100 rounded-sm relative z-10">
         
         <div class="text-center mb-12 fade-in delay-1">
             <h1 class="text-xl md:text-2xl font-semibold tracking-widest border-b border-gray-200 pb-6 inline-block px-4">
@@ -71,5 +103,36 @@
 
     </div>
 
+    <script>
+        const container = document.getElementById('sakura-container');
+
+        function createSakura() {
+            const sakura = document.createElement('div');
+            sakura.classList.add('sakura');
+
+            // 花びらのサイズをランダムに (8px 〜 18px)
+            const size = Math.random() * 10 + 8;
+            sakura.style.width = `${size}px`;
+            sakura.style.height = `${size}px`;
+
+            // 横位置をランダムに (0% 〜 100%)
+            sakura.style.left = `${Math.random() * 100}vw`;
+
+            // 落ちるスピードと揺れるスピードをランダムに
+            const fallDuration = Math.random() * 5 + 5; // 5秒〜10秒
+            const swayDuration = Math.random() * 2 + 2; // 2秒〜4秒
+            sakura.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
+
+            container.appendChild(sakura);
+
+            // アニメーションが終わったら要素を削除（メモリ対策）
+            setTimeout(() => {
+                sakura.remove();
+            }, fallDuration * 1000);
+        }
+
+        // 300ミリ秒ごとに新しい花びらを生成
+        setInterval(createSakura, 300);
+    </script>
 </body>
 </html>
